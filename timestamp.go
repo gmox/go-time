@@ -12,18 +12,35 @@ type (
     }
 )
 
-// Implement interface for unmarshaling JSON to Timestamp
+// Implement interface for unmarshaling JSON to Timestamp via json.Unmarshal
 func (ts *Timestamp) UnmarshalJSON(value []byte) error {
     // start by seeing if we can convert the byte value to an integer
     str, err := strconv.Atoi(string(value))
 
     if err != nil {
-        return err
+        // try with parent unmarshal
+        if err := ts.Time.UnmarshalJSON(value); err != nil {
+            return err
+        }
+
+        ts = &Timestamp{ts.Time}
+
+        return nil
     }
 
-    ts.Time = t.Unix(int64(str), 0)
+    ts = &Timestamp{t.Unix(int64(str), 0)}
 
     return nil
+}
+
+// Implement interface for unmarshaling JSON to Timestamp via json.Unmarshal
+func (ts *Timestamp) MarshalJSON() ([]byte, error) {
+    return ts.Time.MarshalJSON()
+}
+
+// Implement interface for unmarshaling JSON to Timestamp via Decoder.Decode
+func (ts *Timestamp) Decode(value interface {}) error {
+    return ts.UnmarshalJSON(value.([]byte))
 }
 
 // Implement the Scanner interface
