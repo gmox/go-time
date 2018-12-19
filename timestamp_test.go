@@ -24,10 +24,27 @@ var _ = Describe("Timestamp", func() {
 	})
 
 	It("Decodes with date string", func () {
-		data := []byte(`{"date":"2018-09-07T16:39:21Z"}`)
+		data := []byte(`{"date":"2018-09-07T16:39:21-04:00"}`)
 
 		expected := &time.Timestamp{
-			Time: t.Date(2018, 9, 7, 16, 39, 21, 0, t.UTC),
+			Time: t.Date(2018, 9, 7, 16, 39, 21, 0, t.Local),
+		}
+
+		var tm testStruct
+
+		if err := json.Unmarshal(data, &tm); err != nil {
+			panic(err)
+		}
+
+		Expect(tm.Timestamp).To(Not(BeNil()))
+		Expect(tm.Timestamp).To(Equal(expected))
+	})
+
+	It("Decodes with Unix timestamp", func () {
+		data := []byte(`{"date":1545231388}`)
+
+		expected := &time.Timestamp{
+			Time: t.Date(2018, 12, 19, 9, 56, 28, 0, t.Local),
 		}
 
 		var tm testStruct

@@ -19,16 +19,10 @@ func (ts *Timestamp) UnmarshalJSON(value []byte) error {
 
     if err != nil {
         // try with parent unmarshal
-        if err := ts.Time.UnmarshalJSON(value); err != nil {
-            return err
-        }
-
-        ts = &Timestamp{ts.Time}
-
-        return nil
+        return ts.Time.UnmarshalJSON(value)
     }
 
-    ts = &Timestamp{t.Unix(int64(str), 0)}
+    ts.Time = t.Unix(int64(str), 0)
 
     return nil
 }
